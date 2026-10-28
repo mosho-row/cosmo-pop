@@ -79,26 +79,26 @@ function makeCosmoBgm(ctx){
  // Four melodic chapters: departure, discovery, flight, homecoming.
  // Major-key pentatonic-led phrases, varied rhythmic lengths and intentional rests.
  const phrases=[
- // 1-4: a friendly, singable invitation
- [[72,0,.8],[76,1,.45],[79,1.5,.75],[76,2.75,.5],[74,3.5,.4]],
- [[72,0,.45],[74,.75,.4],[76,1.5,1.1],[79,3,.65]],
- [[81,0,.7],[79,1,.45],[76,1.75,.45],[79,2.5,.45],[84,3.25,.55]],
- [[79,0,.7],[76,1,.7],[74,2,.45],[72,2.75,1]],
- // 5-8: curious replies, playful skips and pauses
- [[76,0,.45],[79,.75,.45],[81,1.5,.75],[79,2.75,.35],[76,3.25,.55]],
- [[74,0,.7],[76,1,.45],[79,1.75,.75],[81,3,.55]],
- [[84,0,.6],[81,.9,.45],[79,1.5,.45],[76,2.25,.45],[79,3,.7]],
- [[76,0,.45],[74,.75,.45],[72,1.5,1.15],[76,3.25,.55]],
- // 9-12: lift and movement, highest notes reserved for the climax
- [[79,0,.45],[81,.75,.45],[84,1.5,.85],[81,2.75,.4],[79,3.25,.55]],
- [[81,0,.7],[84,1,.45],[86,1.75,.7],[84,3,.55]],
- [[88,0,.65],[86,1,.45],[84,1.75,.45],[81,2.5,.45],[84,3.25,.55]],
- [[79,0,.45],[81,.75,.4],[84,1.5,.75],[79,2.75,.45],[76,3.5,.35]],
- // 13-16: return of the opening motif and a gentle resolution
- [[72,0,.8],[76,1,.45],[79,1.5,.75],[81,2.75,.5],[79,3.5,.35]],
- [[76,0,.45],[79,.75,.45],[84,1.5,.9],[81,3,.65]],
- [[79,0,.65],[76,1,.45],[74,1.75,.7],[76,3,.6]],
- [[79,0,.55],[76,.75,.45],[74,1.5,.45],[72,2.25,1.15]]
+ // A: cheerful opening hook, rhythmic answer, confident cadence
+ [[76,0,.45],[79,.75,.35],[81,1.5,.7],[79,2.5,.35],[76,3,.45],[79,3.5,.35]],
+ [[81,0,.65],[84,1,.35],[81,1.75,.4],[79,2.5,.35],[76,3,.7]],
+ [[79,0,.35],[81,.5,.35],[84,1.25,.75],[86,2.5,.35],[84,3,.65]],
+ [[81,0,.4],[79,.75,.35],[76,1.5,.5],[74,2.25,.35],[72,3,.8]],
+ // B: answer the hook with a climbing playful phrase
+ [[76,0,.35],[79,.5,.35],[81,1.25,.4],[84,2,.65],[81,3,.35],[79,3.5,.35]],
+ [[76,0,.7],[79,1,.35],[81,1.5,.35],[79,2.25,.4],[76,3,.7]],
+ [[81,0,.35],[84,.5,.35],[86,1.25,.65],[84,2.5,.35],[81,3,.7]],
+ [[79,0,.35],[76,.75,.35],[74,1.5,.4],[76,2.25,.35],[79,3,.7]],
+ // C: a bright lift, with some held ringing notes and playful syncopation
+ [[84,0,.65],[86,1,.35],[88,1.75,.65],[86,3,.35],[84,3.5,.35]],
+ [[81,0,.35],[84,.5,.35],[86,1.25,.4],[84,2,.7],[81,3.25,.5]],
+ [[79,0,.35],[81,.5,.35],[84,1.25,.35],[88,2,.7],[86,3.25,.45]],
+ [[84,0,.5],[81,.75,.35],[79,1.5,.4],[76,2.25,.35],[79,3,.7]],
+ // D: recognizable reprise, lift, and turnaround into the first bar
+ [[76,0,.45],[79,.75,.35],[81,1.5,.7],[79,2.5,.35],[76,3,.45],[79,3.5,.35]],
+ [[81,0,.65],[84,1,.35],[86,1.75,.4],[84,2.5,.35],[81,3,.7]],
+ [[79,0,.35],[81,.5,.35],[84,1.25,.65],[81,2.5,.35],[79,3,.65]],
+ [[76,0,.35],[79,.75,.35],[76,1.5,.5],[74,2.25,.35],[71,3,.7]]
  ];
  // Keep the approved cosmic synth harmony and timbre unchanged.
  const chords=[
@@ -109,20 +109,21 @@ function makeCosmoBgm(ctx){
  ];
  const L=buffer.getChannelData(0),R=buffer.getChannelData(1);
  const add=(t,sec,fn,amp)=>{let a=Math.max(0,Math.floor(t*sr)),n=Math.min(L.length-a,Math.floor(sec*sr));for(let i=0;i<n;i++){let v=fn(i/sr);L[a+i]+=v*amp;R[a+i]+=v*amp}};
- // Soft tuned bell: rounded fundamental, quiet harmonic shimmer and long natural decay.
- // Rendering lasts beyond the notated note, preventing abrupt chopped-off tails.
+ // Small acoustic chime / handbell: bell-like inharmonic partials, smooth attack,
+ // resonant decay and no click-like tiny grace notes. Each note has a natural tail.
  for(let bar=0;bar<phrases.length;bar++)for(const [m,b,d] of phrases[bar]){
   const t=(bar*4+b)*beat,f=440*Math.pow(2,(m-69)/12);
-  const remaining=duration-t,sec=Math.min(remaining,Math.max(1.35,d*beat+1.1));
-  const dynamic=.85+.1*Math.sin((bar*4+b)*1.7);
+  const remaining=duration-t,sec=Math.min(remaining,Math.max(1.8,d*beat+1.35));
+  const dynamic=.88+.10*Math.sin((bar*4+b)*1.13);
   add(t,sec,tt=>{
-   const attack=1-Math.exp(-tt*110);
-   const fade=Math.min(1,Math.max(0,(sec-tt)/.09));
-   const fundamental=Math.exp(-tt*2.05)*Math.sin(2*Math.PI*f*tt);
-   const upper=.19*Math.exp(-tt*3.7)*Math.sin(2*Math.PI*f*2.002*tt);
-   const sparkle=.045*Math.exp(-tt*6.5)*Math.sin(2*Math.PI*f*3.01*tt);
-   return attack*fade*(fundamental+upper+sparkle);
-  },.078*dynamic);
+   const attack=1-Math.exp(-tt*85);
+   const tail=Math.min(1,Math.max(0,(sec-tt)/.13));
+   const body=.68*Math.exp(-tt*1.55)*Math.sin(2*Math.PI*f*tt);
+   const hum=.20*Math.exp(-tt*1.9)*Math.sin(2*Math.PI*f*.501*tt);
+   const bell=.23*Math.exp(-tt*2.75)*Math.sin(2*Math.PI*f*2.397*tt);
+   const sheen=.10*Math.exp(-tt*4.3)*Math.sin(2*Math.PI*f*3.012*tt);
+   return attack*tail*(body+hum+bell+sheen);
+  },.082*dynamic);
  }
  // Original cosmic pad, unchanged.
  for(const [b,ns] of chords){for(const n of ns){const t=b*beat,sec=4*beat,f=440*Math.pow(2,(n-69)/12);
