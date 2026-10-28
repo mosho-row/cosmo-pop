@@ -76,39 +76,51 @@ function hud(){$('score').textContent=score.toLocaleString('ja-JP');$('count').t
 function makeCosmoBgm(ctx){
  const bpm=100,beat=60/bpm,bars=16,duration=bars*4*beat,sr=ctx.sampleRate;
  const buffer=ctx.createBuffer(2,Math.ceil(duration*sr),sr);
+ // Bright, playful mid-register melody: varied phrase lengths, rests, and a few gentle answering plucks.
  const notes=[
-  // Bars 1-4: gentle, spacious opening phrase
-  [69,0,1.5],[72,1.75,.75],[76,3,1],
-  [74,4,1.5],[72,5.75,.75],[69,7,1],
-  [67,8,2],[71,10.5,.75],[74,12,1.5],[72,14,1],
-  // Bars 5-8: answer phrase, with a little rhythmic lift
-  [69,16,1],[72,17.25,.75],[74,18,1.5],
-  [76,20,1],[74,21.5,.5],[71,22.5,1.25],
-  [72,24,2],[76,26.5,.75],[74,28,1],[71,30,1.5],
-  // Bars 9-12: fresh second-half motif, staying in a warm mid register
-  [67,32,1.5],[71,34,.75],[72,35,1],
-  [76,36,1.5],[74,38,1],[72,39.5,.75],
-  [69,40,2],[72,42.5,.75],[76,44,1.5],[74,46,1],
-  // Bars 13-16: settle back toward the opening for a smooth loop
-  [71,48,1],[74,49.5,.75],[76,50.5,1],
-  [72,52,2],[69,54.5,1],
-  [67,56,1.5],[71,58,.75],[72,59,1],
-  [69,60,2],[72,62,1]
+  // Bars 1-4: friendly, catchy opening
+  [72,0,.75],[76,1,.5],[79,1.75,.75],[76,3, .75],
+  [74,4,1.25],[76,5.5,.5],[79,6.25,.75],
+  [81,8,.5],[79,8.75,.75],[76,10,1],[74,11.5,.5],
+  [72,12,1.25],[74,13.5,.5],[76,14.25,.75],
+  // Bars 5-8: bouncy answer with rests
+  [79,16,.75],[76,17,1],[74,18.5,.5],[76,19.25,.75],
+  [81,20,1],[79,21.5,.5],[76,22.25,.75],
+  [74,24,.75],[76,25, .5],[79,25.75,1],[76,27.25,.5],
+  [72,28,1.25],[74,29.5,.5],[76,30.25,.75],
+  // Bars 9-12: fresh motif, still warm and playful
+  [76,32,.5],[79,32.75,.75],[81,34,1],[79,35.5,.5],
+  [76,36,1.25],[74,37.5,.5],[72,38.25,.75],
+  [74,40,.75],[76,41, .5],[79,41.75,1],
+  [81,44,.5],[79,44.75,.75],[76,46,1],[74,47.5,.5],
+  // Bars 13-16: satisfying return toward the opening
+  [72,48,1],[76,49.5,.5],[79,50.25,.75],
+  [76,52,.75],[74,53,1],[76,54.5,.5],
+  [79,56,.75],[76,57, .5],[74,57.75,.75],
+  [72,60,1.25],[76,61.5,.5],[72,62.25,1]
  ];
+ // Light major-key pop harmony. Short, soft chord swells twice per bar instead of a heavy continuous block.
  const chords=[
- [0,[48,55,60,64]],[4,[45,52,57,60]],[8,[41,48,53,57]],[12,[43,50,55,59]],
- [16,[48,55,60,64]],[20,[45,52,57,60]],[24,[41,48,53,57]],[28,[43,50,55,59]],
- [32,[40,47,52,55]],[36,[45,52,57,60]],[40,[41,48,53,57]],[44,[43,50,55,59]],
- [48,[48,55,60,64]],[52,[43,50,55,59]],[56,[45,52,57,60]],[60,[48,55,60,64]]
+ [0,[48,55,60,64]],[4,[50,57,62,65]],[8,[45,52,57,60]],[12,[43,50,55,59]],
+ [16,[48,55,60,64]],[20,[50,57,62,65]],[24,[45,52,57,60]],[28,[43,50,55,59]],
+ [32,[41,48,53,57]],[36,[45,52,57,60]],[40,[48,55,60,64]],[44,[43,50,55,59]],
+ [48,[48,55,60,64]],[52,[50,57,62,65]],[56,[43,50,55,59]],[60,[48,55,60,64]]
  ];
  const L=buffer.getChannelData(0),R=buffer.getChannelData(1);
  const add=(t,sec,fn,amp)=>{let a=Math.max(0,Math.floor(t*sr)),n=Math.min(L.length-a,Math.floor(sec*sr));for(let i=0;i<n;i++){let v=fn(i/sr);L[a+i]+=v*amp;R[a+i]+=v*amp}};
+ // Main bell: rounded attack, moderate register, softer upper harmonics to avoid a piercing edge.
  for(const [m,b,d] of notes){const t=b*beat,sec=d*beat*.94,f=440*Math.pow(2,(m-69)/12);
-  add(t,sec,tt=>{const env=Math.exp(-tt*5.2)*(1-Math.exp(-tt*150));return env*(Math.sin(2*Math.PI*f*tt)+.48*Math.sin(2*Math.PI*f*2.01*tt)+.19*Math.sin(2*Math.PI*f*3.92*tt));},.105);
+  add(t,sec,tt=>{const env=(1-Math.exp(-tt*45))*Math.exp(-tt*2.9);return env*(Math.sin(2*Math.PI*f*tt)+.22*Math.sin(2*Math.PI*f*2.01*tt)+.05*Math.sin(2*Math.PI*f*3.01*tt));},.082);
  }
- for(const [b,ns] of chords){for(const n of ns){const t=b*beat,sec=4*beat,f=440*Math.pow(2,(n-69)/12);
-  add(t,sec,tt=>{const attack=Math.min(1,tt/.28),release=Math.min(1,(sec-tt)/.38);return (Math.sin(2*Math.PI*f*tt)+.22*Math.sin(2*Math.PI*f*2*tt))*Math.max(0,Math.min(attack,release));},.026);
- }}
+ // A few quiet, lower marimba-like answering notes add variety without crowding the melody.
+ const answers=[[67,3.5,.35],[69,7.5,.35],[67,15.5,.35],[69,23.5,.35],[67,31.5,.35],
+ [69,39.5,.35],[67,43.5,.35],[69,51.5,.35],[67,55.5,.35],[69,59.5,.35]];
+ for(const [m,b,d] of answers){const t=b*beat,sec=d*beat,f=440*Math.pow(2,(m-69)/12);
+  add(t,sec,tt=>{const env=(1-Math.exp(-tt*65))*Math.exp(-tt*7);return env*(Math.sin(2*Math.PI*f*tt)+.12*Math.sin(2*Math.PI*f*2.7*tt));},.027);
+ }
+ for(const [b,ns] of chords){for(const n of ns){for(const offset of [0,2]){const t=(b+offset)*beat,sec=2*beat*.96,f=440*Math.pow(2,(n-69)/12);
+  add(t,sec,tt=>{const attack=Math.min(1,tt/.12),release=Math.min(1,(sec-tt)/.24);return (Math.sin(2*Math.PI*f*tt)+.10*Math.sin(2*Math.PI*f*2*tt))*Math.max(0,Math.min(attack,release));},.012);
+ }}}
  let peak=0;for(let i=0;i<L.length;i++)peak=Math.max(peak,Math.abs(L[i]),Math.abs(R[i]));const gain=peak>.88?.88/peak:1;for(let i=0;i<L.length;i++){L[i]*=gain;R[i]*=gain}
  return buffer;
 }
