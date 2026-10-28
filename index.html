@@ -76,51 +76,51 @@ function hud(){$('score').textContent=score.toLocaleString('ja-JP');$('count').t
 function makeCosmoBgm(ctx){
  const bpm=100,beat=60/bpm,bars=16,duration=bars*4*beat,sr=ctx.sampleRate;
  const buffer=ctx.createBuffer(2,Math.ceil(duration*sr),sr);
- // Bright, playful mid-register melody: varied phrase lengths, rests, and a few gentle answering plucks.
+ // Cheerful, memorable music-box melody: major-key motifs, varied rhythm, and breathing room.
  const notes=[
-  // Bars 1-4: friendly, catchy opening
-  [72,0,.75],[76,1,.5],[79,1.75,.75],[76,3, .75],
-  [74,4,1.25],[76,5.5,.5],[79,6.25,.75],
-  [81,8,.5],[79,8.75,.75],[76,10,1],[74,11.5,.5],
-  [72,12,1.25],[74,13.5,.5],[76,14.25,.75],
-  // Bars 5-8: bouncy answer with rests
-  [79,16,.75],[76,17,1],[74,18.5,.5],[76,19.25,.75],
-  [81,20,1],[79,21.5,.5],[76,22.25,.75],
-  [74,24,.75],[76,25, .5],[79,25.75,1],[76,27.25,.5],
-  [72,28,1.25],[74,29.5,.5],[76,30.25,.75],
-  // Bars 9-12: fresh motif, still warm and playful
-  [76,32,.5],[79,32.75,.75],[81,34,1],[79,35.5,.5],
-  [76,36,1.25],[74,37.5,.5],[72,38.25,.75],
-  [74,40,.75],[76,41, .5],[79,41.75,1],
-  [81,44,.5],[79,44.75,.75],[76,46,1],[74,47.5,.5],
-  // Bars 13-16: satisfying return toward the opening
-  [72,48,1],[76,49.5,.5],[79,50.25,.75],
-  [76,52,.75],[74,53,1],[76,54.5,.5],
-  [79,56,.75],[76,57, .5],[74,57.75,.75],
-  [72,60,1.25],[76,61.5,.5],[72,62.25,1]
+ // 1-4: bright opening hook
+ [76,0,.75],[79,.75,.35],[84,1.25,.75],[83,2.25,.35],[79,2.75,.5],[76,3.5,.45],
+ [77,4,.5],[81,4.5,.5],[84,5,.9],[81,6.25,.35],[79,6.75,.75],
+ [76,8,.45],[79,8.5,.45],[84,9,.45],[88,9.5,.8],[86,10.75,.35],[84,11.25,.65],
+ [83,12,.6],[81,12.75,.35],[79,13.25,.55],[76,14,.9],
+ // 5-8: playful response, with syncopation and rests
+ [84,16,.5],[86,16.75,.35],[88,17.25,.7],[84,18.25,.45],[81,19,.75],
+ [83,20,.45],[86,20.5,.45],[88,21,.85],[86,22.25,.35],[83,22.75,.75],
+ [79,24,.45],[84,24.5,.45],[86,25,.7],[84,26,.45],[81,26.75,.4],[79,27.25,.65],
+ [76,28,.6],[79,28.75,.35],[84,29.25,.8],[81,30.5,.35],[76,31,.85],
+ // 9-12: fresh variation, slightly more lift
+ [79,32,.45],[84,32.5,.45],[88,33,.75],[86,34,.35],[84,34.5,.5],[81,35.25,.7],
+ [83,36,.5],[86,36.75,.35],[91,37.25,.75],[88,38.25,.45],[84,39,.7],
+ [84,40,.45],[88,40.5,.45],[91,41,.75],[88,42.25,.35],[86,42.75,.5],[83,43.5,.65],
+ [81,44,.6],[84,44.75,.35],[88,45.25,.75],[84,46.25,.45],[81,47,.7],
+ // 13-16: return to hook and resolve for seamless repeat
+ [76,48,.75],[79,48.75,.35],[84,49.25,.75],[83,50.25,.35],[79,50.75,.55],[76,51.5,.65],
+ [77,52,.5],[81,52.5,.5],[84,53,.8],[81,54.25,.35],[79,54.75,.75],
+ [76,56,.45],[79,56.5,.45],[84,57,.75],[81,58.25,.35],[79,58.75,.5],
+ [76,60,.7],[79,60.75,.35],[84,61.25,.55],[79,62,.45],[76,62.5,1.2]
  ];
- // Light major-key pop harmony. Short, soft chord swells twice per bar instead of a heavy continuous block.
  const chords=[
- [0,[48,55,60,64]],[4,[50,57,62,65]],[8,[45,52,57,60]],[12,[43,50,55,59]],
- [16,[48,55,60,64]],[20,[50,57,62,65]],[24,[45,52,57,60]],[28,[43,50,55,59]],
- [32,[41,48,53,57]],[36,[45,52,57,60]],[40,[48,55,60,64]],[44,[43,50,55,59]],
- [48,[48,55,60,64]],[52,[50,57,62,65]],[56,[43,50,55,59]],[60,[48,55,60,64]]
+ [0,[48,55,60,64]],[4,[45,52,57,60]],[8,[41,48,53,57]],[12,[43,50,55,59]],
+ [16,[48,55,60,64]],[20,[45,52,57,60]],[24,[41,48,53,57]],[28,[43,50,55,59]],
+ [32,[40,47,52,55]],[36,[45,52,57,60]],[40,[41,48,53,57]],[44,[43,50,55,59]],
+ [48,[48,55,60,64]],[52,[43,50,55,59]],[56,[45,52,57,60]],[60,[48,55,60,64]]
  ];
  const L=buffer.getChannelData(0),R=buffer.getChannelData(1);
  const add=(t,sec,fn,amp)=>{let a=Math.max(0,Math.floor(t*sr)),n=Math.min(L.length-a,Math.floor(sec*sr));for(let i=0;i<n;i++){let v=fn(i/sr);L[a+i]+=v*amp;R[a+i]+=v*amp}};
- // Main bell: rounded attack, moderate register, softer upper harmonics to avoid a piercing edge.
- for(const [m,b,d] of notes){const t=b*beat,sec=d*beat*.94,f=440*Math.pow(2,(m-69)/12);
-  add(t,sec,tt=>{const env=(1-Math.exp(-tt*45))*Math.exp(-tt*2.9);return env*(Math.sin(2*Math.PI*f*tt)+.22*Math.sin(2*Math.PI*f*2.01*tt)+.05*Math.sin(2*Math.PI*f*3.01*tt));},.082);
+ // Warm, rounded music-box/bell tone with a little sparkle, not a piercing sine lead.
+ for(const [m,b,d] of notes){const t=b*beat,sec=d*beat*.92,f=440*Math.pow(2,(m-69)/12);
+  add(t,sec,tt=>{const attack=1-Math.exp(-tt*90),env=attack*Math.exp(-tt*3.8);
+   return env*(.78*Math.sin(2*Math.PI*f*tt)+.27*Math.sin(2*Math.PI*f*2.003*tt)+.09*Math.sin(2*Math.PI*f*3.98*tt)+.035*Math.sin(2*Math.PI*f*5.4*tt));},.085);
  }
- // A few quiet, lower marimba-like answering notes add variety without crowding the melody.
- const answers=[[67,3.5,.35],[69,7.5,.35],[67,15.5,.35],[69,23.5,.35],[67,31.5,.35],
- [69,39.5,.35],[67,43.5,.35],[69,51.5,.35],[67,55.5,.35],[69,59.5,.35]];
+ // Occasional quiet rounded pluck answers, like tiny glassy stars.
+ const answers=[[72,3.15,.3],[74,7.45,.28],[72,15.35,.3],[76,23.45,.28],[72,27.7,.3],[74,35.55,.28],[76,39.55,.3],[72,47.55,.28],[74,55.55,.3],[72,59.55,.3]];
  for(const [m,b,d] of answers){const t=b*beat,sec=d*beat,f=440*Math.pow(2,(m-69)/12);
-  add(t,sec,tt=>{const env=(1-Math.exp(-tt*65))*Math.exp(-tt*7);return env*(Math.sin(2*Math.PI*f*tt)+.12*Math.sin(2*Math.PI*f*2.7*tt));},.027);
+  add(t,sec,tt=>{const env=(1-Math.exp(-tt*75))*Math.exp(-tt*6.5);return env*(Math.sin(2*Math.PI*f*tt)+.16*Math.sin(2*Math.PI*f*2.6*tt));},.024);
  }
- for(const [b,ns] of chords){for(const n of ns){for(const offset of [0,2]){const t=(b+offset)*beat,sec=2*beat*.96,f=440*Math.pow(2,(n-69)/12);
-  add(t,sec,tt=>{const attack=Math.min(1,tt/.12),release=Math.min(1,(sec-tt)/.24);return (Math.sin(2*Math.PI*f*tt)+.10*Math.sin(2*Math.PI*f*2*tt))*Math.max(0,Math.min(attack,release));},.012);
- }}}
+ // Restore the more spacious, cosmic synth pad from the earlier version.
+ for(const [b,ns] of chords){for(const n of ns){const t=b*beat,sec=4*beat,f=440*Math.pow(2,(n-69)/12);
+  add(t,sec,tt=>{const attack=Math.min(1,tt/.28),release=Math.min(1,(sec-tt)/.38);return (Math.sin(2*Math.PI*f*tt)+.22*Math.sin(2*Math.PI*f*2*tt))*Math.max(0,Math.min(attack,release));},.026);
+ }}
  let peak=0;for(let i=0;i<L.length;i++)peak=Math.max(peak,Math.abs(L[i]),Math.abs(R[i]));const gain=peak>.88?.88/peak:1;for(let i=0;i<L.length;i++){L[i]*=gain;R[i]*=gain}
  return buffer;
 }
